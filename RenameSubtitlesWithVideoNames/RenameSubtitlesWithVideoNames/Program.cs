@@ -17,12 +17,21 @@ namespace RenameSubtitlesWithVideoNames
                 "For example, Friends.S01E01_posted_by_akash_**.mp4 and Friends.S01E01_random_subtitle**.srt \n" +
                 "---------------------------------------------------------------------------------------------------------" +
                 "---------------------------------------------------------------------------------------------------------");
-            var dir = ConfigurationManager.AppSettings["VideoSubtitleFolderPath"] ?? Directory.GetCurrentDirectory();
+            var dir = Directory.Exists(ConfigurationManager.AppSettings["VideoSubtitleFolderPath"]) ? ConfigurationManager.AppSettings["VideoSubtitleFolderPath"] : Directory.GetCurrentDirectory();
             var videoExtention = ConfigurationManager.AppSettings["VideoExtention"] ?? ".mkv";
             var subtitleExtention = ConfigurationManager.AppSettings["SubtitleExtention"] ?? ".srt";
             string[] files = Directory.GetFiles(dir);
             string[] subtitles = files.Where(str => str.EndsWith(subtitleExtention)).ToArray();
             string[] videos = files.Where(str => str.EndsWith(videoExtention)).ToArray();
+            if (videos.Length == 0)
+            {
+                Console.WriteLine("No files were found in this folder\n" +
+                    "Folder: " + dir);
+                Console.WriteLine("\nTips:\n" +
+                    "1. Make sure the video extension is correct. which is: "+ videoExtention +", if not then change it in config file\n2.You can run this application from the videos folder itself or just put folder path into the config file\n\nPress any key to exit");
+                Console.ReadKey();
+                return;
+            }
             Console.WriteLine("Video files:\n");
             Console.WriteLine("---------------------------------------------------------------------------------------------------------");
             foreach (var item in videos)
@@ -53,12 +62,13 @@ namespace RenameSubtitlesWithVideoNames
                         Console.WriteLine(videos[i - 1].Substring(0, videos[i - 1].Length - videoExtention.Length) + subtitleExtention + "   Created OK");
                     }
                 }
+                Console.WriteLine("Subtitles assigned successfully.Press any key to exit...");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error while renaming the files: " + ex.Message);
             }
-            Console.ReadLine();
+            Console.ReadKey();
         }
     }
 }
